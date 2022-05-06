@@ -2,6 +2,9 @@ const fs = require("fs");
 const path = require("path");
 const http = require("http");
 const port = 5000;
+const { isDevelopMode, logger } = require("nodejs-clg");
+
+isDevelopMode(true);
 
 // const home = (req, res) => {
 //   if (req.url === "/") {
@@ -24,12 +27,11 @@ const port = 5000;
 // };
 
 const getFilePath = (req, res) => {
-  return  path.join(
+  return path.join(
     __dirname,
     "public",
     req.url === "/" ? "index.html" : req.url
   );
-
 };
 const getExtname = (filePath) => {
   return path.extname(filePath);
@@ -74,22 +76,30 @@ const func = (req, res) => {
   const extname = getExtname(filePath);
   const contentType = getContentType(extname);
 
+  logger([filePath, extname, contentType]);
+
   if (contentType === "text/html" && extname === "") {
     filePath += ".html";
   }
-  
 
-  fs.readFile(filePath, (err, data) => { 
+  fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.writeHead(404, { "Content-Type": "text/html" });
-      res.end("<h1>404 Not Found</h1>");
+      if (err.code == "ENOENT") {
+        logger(err);
+        fs.readFile(path.join(__dirname, "public", "404.html"), (err, data) => {
+          if (err) throw err;
+          res.writeHead(404, { "Content-Type": "text/html" });
+          res.end(data);
+        });
+      } else {
+        res.writeHead(500);
+        res.end(`Server error : ${err.code}`);
+      }
     } else {
       res.writeHead(200, { "Content-Type": contentType });
       res.end(data);
     }
   });
-
-  
 };
 
 const server = http.createServer(func);
