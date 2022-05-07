@@ -6,25 +6,6 @@ const { isDevelopMode, logger } = require("nodejs-clg");
 
 isDevelopMode(true);
 
-// const home = (req, res) => {
-//   if (req.url === "/") {
-//     fs.readFile(path.join(__dirname, "public", "index.html"), (err, data) => {
-//       if (err) throw err;
-//       res.writeHead(200, { "Content-Type": "text/html" });
-//       res.end(data);
-//     });
-//   }
-// };
-
-// const about = (req, res) => {
-//   if (req.url === "/about") {
-//     fs.readFile(path.join(__dirname, "public", "about.html"), (err, data) => {
-//       if (err) throw err;
-//       res.writeHead(200, { "Content-Type": "text/html" });
-//       res.end(data);
-//     });
-//   }
-// };
 
 const getFilePath = (req, res) => {
   return path.join(
@@ -54,6 +35,9 @@ const getContentType = (extname) => {
     case ".jpg":
       contentType = "image/jpg";
       break;
+    case ".svg":
+      contentType = "image/jpg";
+      break;
     case ".ico":
       contentType = "image/ico";
       break;
@@ -76,7 +60,6 @@ const func = (req, res) => {
   const extname = getExtname(filePath);
   const contentType = getContentType(extname);
 
-  logger([filePath, extname, contentType]);
 
   if (contentType === "text/html" && extname === "") {
     filePath += ".html";
